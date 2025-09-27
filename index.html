@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ZbahisÇekiliş • Skor Tahmini</title>
+
+  <!-- Font + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+          colors: {
+            brandA:'#ff6241',       /* logodaki sıcak turuncu-kırmızı */
+            brandB:'#25FFE6',       /* logo gradyanı */
+            brandC:'#0DC5FF'
+          },
+          boxShadow: {
+            glow: '0 0 0 1px rgba(13,197,255,.35), 0 8px 30px rgba(0, 255, 240, .15)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root{ color-scheme: dark; }
+    html,body{height:100%}
+    body{
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(255,98,65,.25), transparent 60%),
+        radial-gradient(1000px 550px at 90% 0%, rgba(37,255,230,.18), transparent 60%),
+        linear-gradient(180deg, #08121a 0%, #0a1520 50%, #07111a 100%);
+      color:#e8f6ff;
+    }
+    .glass{background:rgba(10,22,32,.55); backdrop-filter: blur(14px); border:1px solid rgba(13,197,255,.18)}
+    .gradText{
+      background: linear-gradient(90deg,#25FFE6 0%, #0DC5FF 40%, #25FFE6 100%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .btn{
+      position:relative; isolation:isolate;
+    }
+    .btn::after{
+      content:""; position:absolute; inset:-2px; border-radius:16px;
+      background: conic-gradient(from 180deg,#25FFE6,#0DC5FF,#25FFE6);
+      filter: blur(14px); opacity:.25; z-index:-1;
+    }
+    .pulse{ animation:pulse 1.8s infinite ease-in-out }
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  </style>
+</head>
+<body class="font-sans">
+  <header class="max-w-5xl mx-auto px-4 pt-8 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="logo.png" alt="Zbahis" class="h-10 w-auto" />
+      <span class="text-xl font-extrabold gradText tracking-tight">ZbahisÇekiliş</span>
+    </div>
+    <div class="hidden sm:flex items-center gap-3 text-sm text-cyan-200/80">
+      <span class="px-3 py-1 rounded-full border border-cyan-400/30">Galatasaray vs Liverpool</span>
+      <span id="kickoff" class="px-3 py-1 rounded-full border border-cyan-400/30">—</span>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 grid lg:grid-cols-2 gap-6">
+    <!-- Sol: Form -->
+    <section class="glass rounded-2xl p-6 shadow-glow">
+      <h1 class="text-2xl sm:text-3xl font-extrabold mb-1">
+        <span class="gradText">Skor Tahmin Et</span>
+      </h1>
+      <p class="text-cyan-100/80 mb-6">Doğru tahmine özel çekiliş! Maç başlamadan önce tahminini gönder.</p>
+
+      <!-- Maç kartı -->
+      <div class="rounded-xl border border-cyan-400/20 p-4 mb-6">
+        <div class="grid grid-cols-3 items-center text-center gap-2">
+          <div class="space-y-2">
+            <div class="text-sm text-cyan-200/80">Galatasaray</div>
+            <img src="https://upload.wikimedia.org/wikipedia/tr/2/2d/Galatasaray_Sports_Club_Logo.svg" class="mx-auto h-10" alt="">
+          </div>
+          <div class="text-xs uppercase tracking-wider text-cyan-300/70">vs</div>
+          <div class="space-y-2">
+            <div class="text-sm text-cyan-200/80">Liverpool</div>
+            <img src="https://upload.wikimedia.org/wikipedia/tr/2/2f/Liverpool_FC.svg" class="mx-auto h-10" alt="">
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-center gap-4">
+          <input id="gs" type="number" min="0" max="20" placeholder="GS"
+                 class="w-20 text-center text-xl font-bold rounded-xl bg-white/5 border border-cyan-400/30 px-3 py-2 outline-none focus:border-cyan-300" />
+          <span class="text-cyan-200/70 font-semibold">—</span>
+          <input id="liv" type="number" min="0" max="20" placeholder="LIV"
+                 class="w-20 text-center text-xl font-bold rounded-xl bg-white/5 border border-cyan-400/30 px-3 py-2 outline-none focus:border-cyan-300" />
+        </div>
+      </div>
+
+      <!-- Kullanıcı bilgileri -->
+      <div class="grid sm:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm text-cyan-200/80 mb-1">Kullanıcı Adı <span class="text-red-400">*</span></label>
+          <input id="uname" required maxlength="32" placeholder="ör. firuze"
+                 class="w-full rounded-xl bg-white/5 border border-cyan-400/30 px-3 py-2 outline-none focus:border-cyan-300">
+        </div>
+        <div>
+          <label class="block text-sm text-cyan-200/80 mb-1">Telegram @</label>
+          <input id="tg" maxlength="32" placeholder="@kullanici"
+                 class="w-full rounded-xl bg-white/5 border border-cyan-400/30 px-3 py-2 outline-none focus:border-cyan-300">
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm text-cyan-200/80 mb-1">E-posta (isteğe bağlı)</label>
+          <input id="mail" type="email" placeholder="you@example.com"
+                 class="w-full rounded-xl bg-white/5 border border-cyan-400/30 px-3 py-2 outline-none focus:border-cyan-300">
+        </div>
+      </div>
+
+      <div class="flex items-start gap-2 mb-6">
+        <input id="agree" type="checkbox" class="mt-1">
+        <p class="text-xs text-cyan-200/70">Katılım şartlarını okudum, onaylıyorum. (Maç başlamadan önce tek katılım | spam/çoklu girişler elenir)</p>
+      </div>
+
+      <button id="sendBtn"
+              class="btn pulse w-full rounded-2xl bg-gradient-to-r from-brandB via-brandC to-brandB text-slate-900 font-extrabold py-3 shadow-glow hover:opacity-95">
+        Tahmini Gönder
+      </button>
+
+      <p id="msg" class="mt-4 text-sm"></p>
+    </section>
+
+    <!-- Sağ: Sayaç + İstatistik + Kazananlar -->
+    <section class="space-y-6">
+      <div class="glass rounded-2xl p-6 shadow-glow">
+        <div class="text-sm text-cyan-200/80 mb-2">Maç Başlangıcı</div>
+        <div id="countdown" class="text-3xl sm:text-4xl font-extrabold gradText">—</div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-glow">
+        <h2 class="text-lg font-bold mb-2 gradText">Anlık İstatistik</h2>
+        <div id="stats" class="text-cyan-100/80 text-sm">Yükleniyor…</div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-glow">
+        <h2 class="text-lg font-bold mb-2 gradText">Kazananlar</h2>
+        <ul id="winners" class="space-y-2 text-cyan-100/90 text-sm">
+          <li>Henüz açıklanmadı.</li>
+        </ul>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-glow">
+        <h3 class="text-base font-bold mb-2 gradText">Kurallar (Özet)</h3>
+        <ul class="text-xs text-cyan-200/80 list-disc pl-5 space-y-1">
+          <li>Maç başlamadan önce tek tahmin hakkı (IP/Kullanıcı adına göre).</li>
+          <li>Eşitlikte çekiliş yapılır; kazananlar bu sayfada duyurulur.</li>
+          <li>Yanlış/eksik bilgiler elenebilir.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-4 pb-10 text-center text-cyan-300/60 text-xs">
+    © ZbahisÇekiliş • Ultra-premium arayüz
+  </footer>
+
+  <script>
+    /* ======= AYARLAR ======= */
+    const GAS_URL   = "PASTE_YOUR_WEB_APP_URL_HERE"; // Apps Script Web App URL
+    const KICKOFF_ISO = "2025-09-28T22:00:00+03:00"; // Maç başlangıcı (TZ ile)
+    /* ======================= */
+
+    // Sayaç
+    const kickoffEl = document.getElementById('kickoff');
+    const cdEl = document.getElementById('countdown');
+    kickoffEl.textContent = new Date(KICKOFF_ISO).toLocaleString();
+
+    function tick(){
+      const diff = new Date(KICKOFF_ISO) - new Date();
+      if(diff<=0){ cdEl.textContent = "Maç başladı"; return; }
+      const d=Math.floor(diff/86400000),
+            h=Math.floor(diff%86400000/3600000),
+            m=Math.floor(diff%3600000/60000),
+            s=Math.floor(diff%60000/1000);
+      cdEl.textContent = `${d?d+"g ":""}${h}sa ${m}dk ${s}sn`;
+      requestAnimationFrame(()=>setTimeout(tick, 1000));
+    }
+    tick();
+
+    // İstatistik & kazananları çek
+    async function refreshStats(){
+      try{
+        const r = await fetch(GAS_URL + "?fn=stats");
+        const j = await r.json();
+        document.getElementById('stats').innerHTML =
+          `<div class="grid grid-cols-2 gap-2">
+             <div class="rounded-lg border border-cyan-400/20 p-3">
+               <div class="text-xs text-cyan-200/70">Toplam Tahmin</div>
+               <div class="text-xl font-extrabold gradText">${j.total||0}</div>
+             </div>
+             <div class="rounded-lg border border-cyan-400/20 p-3">
+               <div class="text-xs text-cyan-200/70">Bugün</div>
+               <div class="text-xl font-extrabold gradText">${j.today||0}</div>
+             </div>
+           </div>`;
+      }catch(e){
+        document.getElementById('stats').textContent = "—";
+      }
+    }
+    async function refreshWinners(){
+      try{
+        const r = await fetch(GAS_URL + "?fn=winners");
+        const j = await r.json();
+        const ul = document.getElementById('winners');
+        ul.innerHTML = "";
+        if(!j || !j.length){ ul.innerHTML = "<li>Henüz açıklanmadı.</li>"; return; }
+        j.forEach(w=>{
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="font-semibold">${w.name}</span> • ${w.note||''}`;
+          ul.appendChild(li);
+        });
+      }catch(e){ /* no-op */ }
+    }
+    refreshStats(); refreshWinners();
+
+    // Gönderim
+    const btn = document.getElementById('sendBtn');
+    btn.addEventListener('click', async ()=>{
+      const uname = document.getElementById('uname').value.trim();
+      const tg = document.getElementById('tg').value.trim();
+      const mail = document.getElementById('mail').value.trim();
+      const gs = parseInt(document.getElementById('gs').value,10);
+      const liv = parseInt(document.getElementById('liv').value,10);
+      const agree = document.getElementById('agree').checked;
+      const msg = document.getElementById('msg');
+
+      if(!agree){ msg.textContent="Lütfen şartları onaylayın."; msg.className="mt-4 text-sm text-red-400"; return; }
+      if(!uname){ msg.textContent="Kullanıcı adı zorunludur."; msg.className="mt-4 text-sm text-red-400"; return; }
+      if(Number.isNaN(gs) || Number.isNaN(liv)){ msg.textContent="Skorları giriniz."; msg.className="mt-4 text-sm text-red-400"; return; }
+
+      btn.disabled = true; btn.textContent = "Gönderiliyor…";
+      try{
+        const r = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ uname, tg, mail, gs, liv, ua:navigator.userAgent })
+        });
+        const j = await r.json();
+        if(j.ok){
+          msg.textContent = "Tahminin alındı! Bol şans 🍀";
+          msg.className="mt-4 text-sm text-emerald-400";
+          refreshStats();
+        }else{
+          msg.textContent = j.error || "Gönderim reddedildi.";
+          msg.className="mt-4 text-sm text-red-400";
+        }
+      }catch(e){
+        msg.textContent = "Sunucuya ulaşılamadı.";
+        msg.className="mt-4 text-sm text-red-400";
+      }finally{
+        btn.disabled = false; btn.textContent = "Tahmini Gönder";
+      }
+    });
+  </script>
+</body>
+</html>
